@@ -89,8 +89,6 @@ def parse_file_information(version, mfile):
     else:
         file_info = struct.unpack("<9I8s8Q16sI96s", mfile.read(224))
         file_info_dict = dict(zip(file_info_members_v26, file_info))
-        print(file_info_dict)
-        sys.exit()
     return process_fileinfo_members(file_info_dict)
 
 def filenameHandler(exe_name):
@@ -143,15 +141,9 @@ def prefetchCarve(mfile, outfile):
             file_info = parse_file_information(header[u'version'], mfile)
             output(header, file_info, outfile)
             offset = mfile.tell()
-            yes_count += 1
-            print("yep", offset, yes_count)
             continue
 
         offset += 5
-        no_count += 1
-        print("nope", offset, no_count)
-    print("Yes Count: ", yes_count)
-    print("No Count: ", no_count)
 
 
 def output(header, file_info, outfile, output_type=None):
