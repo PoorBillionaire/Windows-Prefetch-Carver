@@ -81,7 +81,7 @@ file_info_members_v26 = [
 
 def parse_file_information(version, mfile):
     if version == 17:
-        file_info = struct.unpack("<9IQ2QI4s", mfile.read(68))
+        file_info = struct.unpack("<9IQ16s2I", mfile.read(68))
         file_info_dict = dict(zip(file_info_members_v17, file_info))
     elif version == 23:
         file_info = struct.unpack("<9I2Q16sI84s", mfile.read(156))
@@ -146,7 +146,7 @@ def prefetchCarve(mfile, outfile, output_type=None, system_name=None):
 
 def output(header, file_info, outfile, output_type=None, system_name=None):
     if output_type == "tln":
-    	if not system_name:
+        if not system_name:
             system_name = u''
 
         o = u'{0}|CARVED_PREFETCH_LAST_RUN_TIME|{1}||{2}-{3}\n'.format(
@@ -177,7 +177,7 @@ def output(header, file_info, outfile, output_type=None, system_name=None):
             file_info[u'last_run_time_human'],
             header[u'exe_name'],
             header[u'prefetch_hash'],
-            file_info[u'run_count']).upper()
+            file_info[u'run_count'])
 
     outfile.write(o.encode('utf8', errors='backslashreplace'))
 
