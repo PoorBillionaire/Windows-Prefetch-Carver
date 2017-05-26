@@ -8,7 +8,7 @@ The Windows application prefetch mechanism is in place to offer performance bene
 
 Supported Prefetch Types
 --------------------------
-Windows 10 Prefetch files are compressed, and therefore unabled to be carved from disk. All other Prefetch formats are supported (Windows XP - Windows 8.1)
+Windows 10 Prefetch files are compressed, and are unable to be carved from disk in this manner. All other Prefetch formats are supported (Windows XP - Windows 8.1)
 
 Command-Line Options
 ---------------------
