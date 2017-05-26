@@ -121,9 +121,7 @@ def parseHeader(buf):
     header_dict = dict(zip(header_members, parsed_header))
     return process_header_values(header_dict)
 
-def prefetchCarve(mfile, outfile):
-    yes_count = 0
-    no_count = 0
+def prefetchCarve(mfile, outfile, output_type=None, system_name=None):
     offset = 0
     while True:
         offset = mfile.find(b'\x53\x43\x43\x41', offset)
@@ -139,20 +137,47 @@ def prefetchCarve(mfile, outfile):
             mfile.seek(offset)
             header = parseHeader(mfile.read(84))
             file_info = parse_file_information(header[u'version'], mfile)
-            output(header, file_info, outfile)
+            output(header, file_info, outfile, output_type, system_name)
             offset = mfile.tell()
             continue
 
         offset += 5
 
 
-def output(header, file_info, outfile, output_type=None):
-    o = u'{0} | {1}-{2} | Run Count: {3}\n'.format(
-        file_info[u'last_run_time_human'],
+def output(header, file_info, outfile, output_type=None, system_name=None):
+    if output_type == "tln":
+    	if not system_name:
+            system_name = u''
+
+        o = u'{0}|CARVED_PREFETCH_LAST_RUN_TIME|{1}||{2}-{3}\n'.format(
+            file_info[u'last_run_time_epoch'],
+            system_name,
+            header[u'exe_name'],
+            header[u'prefetch_hash'])
+
+    elif output_type == "csv":
+        o = u'{0},{1}-{2},{3}\n'.format(
+            file_info[u'last_run_time_human'],
+            header[u'exe_name'],
+            header[u'prefetch_hash'],
+            file_info[u'run_count'])
+
+    elif output_type == "mactime":
+        o = u'0|{0}-{1} (CARVED_PREFETCH_LAST_RUN_TIME)|run_count: {2}|0|0|0|0|{3}|{3}|{3}|{3}\n'.format(
         header[u'exe_name'],
         header[u'prefetch_hash'],
-        file_info[u'run_count']).upper()
-        
+        file_info[u'run_count'],
+        file_info[u'last_run_time_epoch'],
+        file_info[u'last_run_time_epoch'],
+        file_info[u'last_run_time_epoch'],
+        file_info[u'last_run_time_epoch'])
+
+    else:
+        o = u'{0} | {1}-{2} | run_count: {3}\n'.format(
+            file_info[u'last_run_time_human'],
+            header[u'exe_name'],
+            header[u'prefetch_hash'],
+            file_info[u'run_count']).upper()
 
     outfile.write(o.encode('utf8', errors='backslashreplace'))
 
@@ -162,12 +187,28 @@ def main():
     p = ArgumentParser()
     p.add_argument('-f', '--file', help='Carve Prefetch files from the given file', required=True)
     p.add_argument('-o', '--outfile', help='Write results to the given file', required=True)
+    p.add_argument('-c', '--csv', help='Output results in csv format', action='store_true')
+    p.add_argument('-m', '--mactime', help='Output results in mactime format', action='store_true')
+    p.add_argument('-t', '--tln', help='Output results in tln format', action='store_true')
+    p.add_argument('-s', '--system', help='System name (use with -t)')
+
     args = p.parse_args()
 
     with open(args.file, 'rb') as i:
         with contextlib.closing(mmap.mmap(i.fileno(), 0 , access=mmap.ACCESS_READ)) as m:
-            with open(args.outfile, 'ab+') as o:
-                prefetchCarve(m, o)
+            with open(args.outfile, 'wb') as o:
+                if args.tln:
+                    prefetchCarve(m, o, "tln", system_name=args.system)
+                elif args.csv:
+                    o.write(u'last_run_time,prefetch_file_name,run_count\n')
+                    prefetchCarve(m, o, output_type="csv")
+                elif args.mactime:
+                    prefetchCarve(m, o, output_type="mactime")
+                else:
+                    prefetchCarve(m, o)
+
+
+
 
 
 if __name__ == '__main__':
