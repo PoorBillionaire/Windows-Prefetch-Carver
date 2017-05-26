@@ -182,7 +182,6 @@ def output(header, file_info, outfile, output_type=None, system_name=None):
     outfile.write(o.encode('utf8', errors='backslashreplace'))
 
 
-
 def main():
     p = ArgumentParser()
     p.add_argument('-f', '--file', help='Carve Prefetch files from the given file', required=True)
@@ -206,9 +205,6 @@ def main():
                     prefetchCarve(m, o, output_type="mactime")
                 else:
                     prefetchCarve(m, o)
-
-
-
 
 
 if __name__ == '__main__':
