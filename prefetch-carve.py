@@ -38,7 +38,7 @@ file_info_members_v17 = [
     u'unknown_1'
 ]
 
-file_info_members_v23_v26 = [
+file_info_members_v23 = [
     u'metrics_offset',
     u'metrics_count',
     u'trace_chains_offset',
@@ -55,6 +55,29 @@ file_info_members_v23_v26 = [
     u'unknown_2'
 ]
 
+file_info_members_v26 = [
+    u'metrics_offset',
+    u'metrics_count',
+    u'trace_chains_offset',
+    u'trace_chains_count',
+    u'filename_strings_offset',
+    u'filename_strings_size',
+    u'volumes_info_offset',
+    u'volumes_count',
+    u'volumes_info_size',
+    u'unknown_0',
+    u'last_run_time',
+    u'execution_time_1',
+    u'execution_time_2',
+    u'execution_time_3',
+    u'execution_time_4',
+    u'execution_time_5',
+    u'execution_time_6',
+    u'execution_time_7',
+    u'unknown_1',
+    u'run_count',
+    u'unknown_2'
+]
 
 def parse_file_information(version, mfile):
     if version == 17:
@@ -62,10 +85,10 @@ def parse_file_information(version, mfile):
         file_info_dict = dict(zip(file_info_members_v17, file_info))
     elif version == 23:
         file_info = struct.unpack("<9I2Q16sI84s", mfile.read(156))
-        file_info_dict = dict(zip(file_info_members_v23_v26, file_info))
+        file_info_dict = dict(zip(file_info_members_v23, file_info))
     else:
-        file_info = struct.unpack("<9IQ8Q2QI96s", mfile.read(224))
-        file_info_dict = dict(zip(file_info_members_v23_v26, file_info))
+        file_info = struct.unpack("<9I8s8Q16sI96s", mfile.read(224))
+        file_info_dict = dict(zip(file_info_members_v26, file_info))
         print(file_info_dict)
         sys.exit()
     return process_fileinfo_members(file_info_dict)
