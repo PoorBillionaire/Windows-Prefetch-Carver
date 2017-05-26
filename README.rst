@@ -1,4 +1,3 @@
-Carve Windows Prefetch artifacts from arbitrary binary data
 Windows-Prefetch-Carver
 ========================    
 Python script to carve Windows Prefetch artifacts from arbitrary binary data
