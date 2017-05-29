@@ -79,17 +79,20 @@ file_info_members_v26 = [
     u'unknown_2'
 ]
 
-def parse_file_information(version, mfile):
+def parse_file_information(version, mfile, offset):
     if version == 17:
-        file_info = struct.unpack("<9IQ16s2I", mfile.read(68))
+        file_info = struct.unpack("<9IQ16s2I", mfile[offset:offset + 68])
         file_info_dict = dict(zip(file_info_members_v17, file_info))
+        offset += 68
     elif version == 23:
-        file_info = struct.unpack("<9I2Q16sI84s", mfile.read(156))
+        file_info = struct.unpack("<9I2Q16sI84s", mfile[offset:offset + 156])
         file_info_dict = dict(zip(file_info_members_v23, file_info))
+        offset += 156
     else:
-        file_info = struct.unpack("<9I8s8Q16sI96s", mfile.read(224))
+        file_info = struct.unpack("<9I8s8Q16sI96s", mfile[offset:offset + 224])
         file_info_dict = dict(zip(file_info_members_v26, file_info))
-    return process_fileinfo_members(file_info_dict)
+        offset += 224
+    return process_fileinfo_members(file_info_dict), offset
 
 def filenameHandler(exe_name):
     end = exe_name.find(b'\x00\x00')
@@ -130,18 +133,16 @@ def prefetchCarve(mfile, outfile, output_type=None, system_name=None):
             break
 
         offset -= 4
-        mfile.seek(offset)
 
-        version = struct.unpack('<I', mfile.read(4))[0]
+        version = struct.unpack('<I', mfile[offset:offset + 4])[0]
         if version in prefetch_types:
-            mfile.seek(offset)
-            header = parseHeader(mfile.read(84))
-            file_info = parse_file_information(header[u'version'], mfile)
+            header = parseHeader(mfile[offset:offset + 84])
+            offset += 84
+            file_info, offset = parse_file_information(header[u'version'], mfile, offset)
             output(header, file_info, outfile, output_type, system_name)
-            offset = mfile.tell()
             continue
 
-        offset += 5
+        offset += 8
 
 
 def output(header, file_info, outfile, output_type=None, system_name=None):
