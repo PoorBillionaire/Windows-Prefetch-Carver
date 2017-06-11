@@ -138,9 +138,9 @@ def prefetchCarve(mfile, outfile, output_type=None, system_name=None):
         version = struct.unpack('<I', mfile[offset:offset + 4])[0]
         if version in prefetch_types:
             header = parseHeader(mfile[offset:offset + 84])
+            offset += 84
 
             try:
-                offset += 84
                 file_info, offset = parse_file_information(header[u'version'], mfile, offset)
                 output(header, file_info, outfile, output_type, system_name)
                 continue
