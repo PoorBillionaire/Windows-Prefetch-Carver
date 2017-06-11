@@ -96,7 +96,7 @@ def parse_file_information(version, mfile, offset):
 
 def filenameHandler(exe_name):
     end = exe_name.find(b'\x00\x00')
-    exe_name = exe_name[0:end + 1].decode("utf16")
+    exe_name = exe_name[0:end + 1].decode("utf-16-le", errors='replace')
     return exe_name
 
 def process_fileinfo_members(fileinfo_dict):
