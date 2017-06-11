@@ -113,6 +113,7 @@ def filetime_to_epoch(filetime):
 
 def filetime_to_human(filetime):
     return str(datetime.utcfromtimestamp(float(filetime) * 1e-7 - 11644473600))
+        
 
 def process_header_values(header_dict):
     header_dict[u'prefetch_hash'] = hex(header_dict[u'prefetch_hash']).lstrip(u'0x')
@@ -137,10 +138,14 @@ def prefetchCarve(mfile, outfile, output_type=None, system_name=None):
         version = struct.unpack('<I', mfile[offset:offset + 4])[0]
         if version in prefetch_types:
             header = parseHeader(mfile[offset:offset + 84])
-            offset += 84
-            file_info, offset = parse_file_information(header[u'version'], mfile, offset)
-            output(header, file_info, outfile, output_type, system_name)
-            continue
+
+            try:
+                offset += 84
+                file_info, offset = parse_file_information(header[u'version'], mfile, offset)
+                output(header, file_info, outfile, output_type, system_name)
+                continue
+            except ValueError:
+                continue
 
         offset += 8
 
